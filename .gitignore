@@ -12,6 +12,7 @@
 *.test
 
 # Code coverage profiles and other test artifacts
+# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 coverage.*
 *.coverprofile
@@ -24,6 +25,10 @@ profile.cov
 go.work
 go.work.sum
 
+# go.sum should be committed
+!go.sum
+
+
 # env file
 .env
 
@@ -34,7 +39,11 @@ go.work.sum
 # AWS CDK output
 cdk.out/
 
-# Lambda build artifacts 
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# Lambda build artifacts
 lambda/bootstrap
 lambda/function.zip
 
