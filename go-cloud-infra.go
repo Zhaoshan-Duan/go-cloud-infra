@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -16,6 +17,7 @@ func NewGoCloudInfraStack(scope constructs.Construct, id string, props *GoCloudI
 	if props != nil {
 		sprops = props.StackProps
 	}
+	// stack gets attached to the app (scope):
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
 	// The code that defines your stack goes here
@@ -24,6 +26,11 @@ func NewGoCloudInfraStack(scope constructs.Construct, id string, props *GoCloudI
 	// queue := awssqs.NewQueue(stack, jsii.String("GoCloudInfraQueue"), &awssqs.QueueProps{
 	// 	VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(300)),
 	// })
+	lambdaFunc := awscdk.NewFunction(stack, jsii.String("myLambdaFunction"), &awslambda.FunctionProps{
+		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
+		Code: awslambda.Code_FromAsset(jsii.String("lambda/function.zip"), nil),
+		Handler: jsii.String("main"),
+	})	
 
 	return stack
 }
@@ -31,6 +38,8 @@ func NewGoCloudInfraStack(scope constructs.Construct, id string, props *GoCloudI
 func main() {
 	defer jsii.Close()
 
+	// Source of truth - biggest first construct implementation 
+	// 	binds all other infrastructure 
 	app := awscdk.NewApp(nil)
 
 	NewGoCloudInfraStack(app, "GoCloudInfraStack", &GoCloudInfraStackProps{

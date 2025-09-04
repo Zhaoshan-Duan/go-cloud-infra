@@ -3,7 +3,12 @@ package main
 // Backend: handle all the backend logic for the application
 // 	pakcaged and zipped to be deployed to AWS Lambda function
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/aws/aws-lambda-go/lambda"
+)
+
+
 
 type MyEvent struct {
 	Username string `json:"username"`
@@ -20,5 +25,6 @@ func HandlerRequest(event MyEvent) (string, error) {
 
 
 func main() {
-		
+	// On invocation, call the HandlerRequest function
+	lambda.Start(HandlerRequest)
 }
