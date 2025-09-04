@@ -26,7 +26,7 @@ func NewGoCloudInfraStack(scope constructs.Construct, id string, props *GoCloudI
 	// queue := awssqs.NewQueue(stack, jsii.String("GoCloudInfraQueue"), &awssqs.QueueProps{
 	// 	VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(300)),
 	// })
-	lambdaFunc := awscdk.NewFunction(stack, jsii.String("myLambdaFunction"), &awslambda.FunctionProps{
+	awslambda.NewFunction(stack, jsii.String("myLambdaFunction"), &awslambda.FunctionProps{
 		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
 		Code: awslambda.Code_FromAsset(jsii.String("lambda/function.zip"), nil),
 		Handler: jsii.String("main"),
