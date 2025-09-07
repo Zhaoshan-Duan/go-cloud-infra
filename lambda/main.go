@@ -5,10 +5,10 @@ package main
 
 import (
 	"fmt"
+	"lambda-func/app"
+
 	"github.com/aws/aws-lambda-go/lambda"
 )
-
-
 
 type MyEvent struct {
 	Username string `json:"username"`
@@ -19,12 +19,12 @@ func HandlerRequest(event MyEvent) (string, error) {
 	if event.Username == "" {
 		return "", fmt.Errorf("username is cannot be empty")
 	}
-	
+
 	return fmt.Sprintf("Succesfully called by - %s", event.Username), nil
 }
 
-
 func main() {
 	// On invocation, call the HandlerRequest function
+	_ = app.NewApp()
 	lambda.Start(HandlerRequest)
 }
