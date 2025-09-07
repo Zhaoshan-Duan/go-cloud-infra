@@ -22,29 +22,26 @@ func NewDynamoDBClient() DynamoDBClient {
 	}
 }
 
-// Does this user exist in the database?
-func (u DynamoDBClient) DoesUserExist(username string) (bool, error) {
+// InsertUserIfNotExists checks if a user exists, and if not, inserts the user into the database.
+func (u DynamoDBClient) InsertUserIfNotExists(user types.RegisterUser) (bool, error) {
+	// Check if user exists
 	result, err := u.databaseStore.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(TABLE_NAME),
 		Key: map[string]*dynamodb.AttributeValue{
-			"username": {S: aws.String(username)},
+			"username": {S: aws.String(user.Username)},
 		},
 	})
 
 	if err != nil {
-		return true, err
+		return false, err
 	}
 
-	if result.Item == nil {
+	if result.Item != nil {
+		// User already exists
 		return false, nil
 	}
 
-	return true, nil
-}
-
-// How do I insert a new record into the database?
-func (u DynamoDBClient) InsertUser(user types.RegisterUser) error {
-	// assemble the item
+	// User does not exist, insert new user
 	item := &dynamodb.PutItemInput{
 		TableName: aws.String(TABLE_NAME),
 		Item: map[string]*dynamodb.AttributeValue{
@@ -52,10 +49,9 @@ func (u DynamoDBClient) InsertUser(user types.RegisterUser) error {
 			"password": {S: aws.String(user.Password)},
 		},
 	}
-	// insert
-	_, err := u.databaseStore.PutItem(item)
+	_, err = u.databaseStore.PutItem(item)
 	if err != nil {
-		return err
+		return false, err
 	}
-	return nil
+	return true, nil
 }
