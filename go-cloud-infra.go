@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
@@ -20,17 +21,28 @@ func NewGoCloudInfraStack(scope constructs.Construct, id string, props *GoCloudI
 	// stack gets attached to the app (scope):
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
+	// DynamoDB table
+	table := awsdynamodb.NewTable(stack, jsii.String("UserTable"), &awsdynamodb.TableProps{
+		PartitionKey: &awsdynamodb.Attribute{
+			Name: jsii.String("username"),
+			Type: awsdynamodb.AttributeType_STRING,
+		},
+		TableName: jsii.String("UserTable"),
+	})
+
 	// The code that defines your stack goes here
 
 	// example resource
 	// queue := awssqs.NewQueue(stack, jsii.String("GoCloudInfraQueue"), &awssqs.QueueProps{
 	// 	VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(300)),
 	// })
-	awslambda.NewFunction(stack, jsii.String("myLambdaFunction"), &awslambda.FunctionProps{
+	myFunction := awslambda.NewFunction(stack, jsii.String("myLambdaFunction"), &awslambda.FunctionProps{
 		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
-		Code: awslambda.Code_FromAsset(jsii.String("lambda/function.zip"), nil),
+		Code:    awslambda.Code_FromAsset(jsii.String("lambda/function.zip"), nil),
 		Handler: jsii.String("main"),
-	})	
+	})
+
+	table.GrantReadWriteData(myFunction)
 
 	return stack
 }
@@ -38,8 +50,8 @@ func NewGoCloudInfraStack(scope constructs.Construct, id string, props *GoCloudI
 func main() {
 	defer jsii.Close()
 
-	// Source of truth - biggest first construct implementation 
-	// 	binds all other infrastructure 
+	// Source of truth - biggest first construct implementation
+	// 	binds all other infrastructure
 	app := awscdk.NewApp(nil)
 
 	NewGoCloudInfraStack(app, "GoCloudInfraStack", &GoCloudInfraStackProps{
